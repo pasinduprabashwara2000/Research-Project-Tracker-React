@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Form, Row, Table } from "react-bootstrap";
+import {Alert, Button, Col, Form, Row, Table} from "react-bootstrap";
 import axios from "axios";
 import "./css/style.css";
 
 function ManageUser() {
+    const [successMsg, setSuccessMsg] = useState("");
+    const [errorMsg, setErrorMsg] = useState("");
     const [users, setUsers] = useState([]);
     const [form, setForm] = useState({
         userId: "",
@@ -11,7 +13,7 @@ function ManageUser() {
         password: "",
         fullName: "",
         userRoleEnum: "",
-        createdAt: ""
+        createdAt: "",
     });
     const [editId, setEditId] = useState(null);
 
@@ -24,7 +26,7 @@ function ManageUser() {
             const res = await axios.get("http://localhost:8080/api/user");
             setUsers(res.data);
         } catch (error) {
-            console.error("Error fetching users:", error);
+            setErrorMsg("Error fetching Users: " + (error.response?.data?.message || error.message));
         }
     };
 
@@ -35,32 +37,43 @@ function ManageUser() {
     const handleSave = async () => {
         try {
             await axios.post("http://localhost:8080/api/user", form);
+            setSuccessMsg("User Saved Successfully");
             fetchUsers();
             handleReset();
         } catch (error) {
-            console.error("Error saving user:", error);
+            setErrorMsg("Error Saving User: " + (error.response?.data?.message || error.message));
         }
     };
 
     const handleUpdate = async () => {
-        if (!editId) return;
+        if (!editId) {
+            setErrorMsg("Please Select User ID to Update");
+            return;
+        }
+
         try {
             await axios.put(`http://localhost:8080/api/user/${editId}`, form);
+            setSuccessMsg("User Updated Successfully");
             fetchUsers();
             handleReset();
         } catch (error) {
-            console.error("Error updating user:", error);
+            setErrorMsg("Error Updating User: " + (error.response?.data?.message || error.message));
         }
     };
 
     const handleDelete = async () => {
-        if (!form.userId) return;
+        if (!form.userId) {
+            setErrorMsg("Please Select User ID to Delete");
+            return;
+        }
+
         try {
             await axios.delete(`http://localhost:8080/api/user/${form.userId}`);
+            setSuccessMsg("User Deleted Successfully");
             fetchUsers();
             handleReset();
         } catch (error) {
-            console.error("Error deleting user:", error);
+            setErrorMsg("Error Deleting User: " + (error.response?.data?.message || error.message));
         }
     };
 
@@ -71,9 +84,11 @@ function ManageUser() {
             password: "",
             fullName: "",
             userRoleEnum: "",
-            createdAt: ""
+            createdAt: "",
         });
         setEditId(null);
+        setErrorMsg("");
+        setSuccessMsg("");
     };
 
     const handleRowClick = (user) => {
@@ -83,14 +98,20 @@ function ManageUser() {
             password: user.password,
             fullName: user.fullName,
             userRoleEnum: user.userRoleEnum,
-            createdAt: user.createdAt
+            createdAt: user.createdAt ? user.createdAt.split("T")[0] + "T" + user.createdAt.split("T")[1].slice(0, 5) : "",
         });
         setEditId(user.userId);
+        setErrorMsg("");
+        setSuccessMsg("");
     };
 
     return (
         <>
             <h4 className="title">Manage Users</h4>
+
+            {successMsg && <Alert variant="success">{successMsg}</Alert>}
+            {errorMsg && <Alert variant="danger">{errorMsg}</Alert>}
+
             <Form>
                 <Row className="mb-3">
                     <Col>
@@ -101,6 +122,7 @@ function ManageUser() {
                             value={form.userId}
                             onChange={handleChange}
                             placeholder="Enter Your User ID"
+                            disabled={!!editId} // prevent changing ID during edit
                         />
                     </Col>
 
@@ -141,11 +163,7 @@ function ManageUser() {
 
                     <Col>
                         <Form.Label>User Role:</Form.Label>
-                        <Form.Select
-                            id="userRoleEnum"
-                            value={form.userRoleEnum}
-                            onChange={handleChange}
-                        >
+                        <Form.Select id="userRoleEnum" value={form.userRoleEnum} onChange={handleChange}>
                             <option value="">Select Role</option>
                             <option value="ADMIN">Admin</option>
                             <option value="PI">PI</option>
@@ -196,17 +214,13 @@ function ManageUser() {
                 </thead>
                 <tbody>
                 {users.map((u) => (
-                    <tr
-                        key={u.userId}
-                        onClick={() => handleRowClick(u)}
-                        style={{ cursor: "pointer" }}
-                    >
+                    <tr key={u.userId} onClick={() => handleRowClick(u)} style={{ cursor: "pointer" }}>
                         <td>{u.userId}</td>
                         <td>{u.userName}</td>
                         <td>{u.password}</td>
                         <td>{u.fullName}</td>
                         <td>{u.userRoleEnum}</td>
-                        <td>{u.createdAt}</td>
+                        <td>{u.createdAt ? new Date(u.createdAt).toLocaleString() : ""}</td>
                     </tr>
                 ))}
                 </tbody>
