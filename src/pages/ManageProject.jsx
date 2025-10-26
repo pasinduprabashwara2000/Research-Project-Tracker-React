@@ -60,50 +60,69 @@ function ManageProject() {
         try {
             await axios.post("http://localhost:8080/api/project", form);
             setSuccessMsg("Project saved successfully!");
+            setErrorMsg("");
             fetchProjects();
             handleReset();
         } catch (error) {
-            setErrorMsg(error.response?.data?.message || "Error saving project");
+            setErrorMsg("Error Saving Project : " + (error.response?.data?.message || error.message));
+            setSuccessMsg("");
         }
     };
 
     const handleUpdate = async () => {
         if (!editId) {
             setErrorMsg("Please select a project to update.");
+            setSuccessMsg("");
             return;
         }
         try {
             await axios.put(`http://localhost:8080/api/project/${editId}`, form);
             setSuccessMsg("Project updated successfully!");
+            setErrorMsg("");
             fetchProjects();
             handleReset();
         } catch (error) {
             setErrorMsg(error.response?.data?.message || "Error updating project");
+            setSuccessMsg("");
         }
     };
 
     const handleDelete = async () => {
         if (!form.id) {
             setErrorMsg("Please select a project to delete.");
+            setSuccessMsg("");
             return;
         }
         try {
             await axios.delete(`http://localhost:8080/api/project/${form.id}`);
             setSuccessMsg("Project deleted successfully!");
+            setErrorMsg("");
             fetchProjects();
             handleReset();
         } catch (error) {
             setErrorMsg(error.response?.data?.message || "Error deleting project");
+            setSuccessMsg("");
         }
     };
 
-    const handleRowClick = (p) => {
+    const handleRowClick = (project) => {
         setForm({
-            ...p,
-            createdAt: p.createdAt ? p.createdAt.split("T")[0] + "T" + p.createdAt.split("T")[1].slice(0, 5) : "",
-            updatedAt: p.updatedAt ? p.updatedAt.split("T")[0] + "T" + p.updatedAt.split("T")[1].slice(0, 5) : "",
+            id: project.id || "",
+            title: project.title || "",
+            status: project.status || "",
+            principalInvestigator: project.principalInvestigator || "",
+            tags: project.tags || "",
+            startDate: project.startDate || "",
+            endDate: project.endDate || "",
+            createdAt: project.createdAt
+                ? project.createdAt.split("T")[0] + "T" + project.createdAt.split("T")[1].slice(0, 5)
+                : "",
+            updatedAt: project.updatedAt
+                ? project.updatedAt.split("T")[0] + "T" + project.updatedAt.split("T")[1].slice(0, 5)
+                : "",
+            summary: project.summary || "",
         });
-        setEditId(p.id);
+        setEditId(project.id);
         setErrorMsg("");
         setSuccessMsg("");
     };
@@ -125,7 +144,7 @@ function ManageProject() {
                             value={form.id}
                             onChange={handleChange}
                             placeholder="Enter Project ID"
-                            disabled={!!editId} // prevent changing ID when editing
+                            disabled={!!editId}
                         />
                     </Col>
                     <Col>
@@ -185,11 +204,21 @@ function ManageProject() {
                     </Col>
                     <Col>
                         <Form.Label>Created At:</Form.Label>
-                        <Form.Control type="datetime-local" id="createdAt" value={form.createdAt} onChange={handleChange} />
+                        <Form.Control
+                            type="datetime-local"
+                            id="createdAt"
+                            value={form.createdAt}
+                            onChange={handleChange}
+                        />
                     </Col>
                     <Col>
                         <Form.Label>Updated At:</Form.Label>
-                        <Form.Control type="datetime-local" id="updatedAt" value={form.updatedAt} onChange={handleChange} />
+                        <Form.Control
+                            type="datetime-local"
+                            id="updatedAt"
+                            value={form.updatedAt}
+                            onChange={handleChange}
+                        />
                     </Col>
                 </Row>
 
@@ -223,40 +252,40 @@ function ManageProject() {
                         </Button>
                     </Col>
                 </Row>
-
-                <Table striped bordered hover responsive>
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Summary</th>
-                        <th>Status</th>
-                        <th>PI</th>
-                        <th>Tags</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Created At</th>
-                        <th>Updated At</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {projects.map((p) => (
-                        <tr key={p.id} onClick={() => handleRowClick(p)} style={{ cursor: "pointer" }}>
-                            <td>{p.id}</td>
-                            <td>{p.title}</td>
-                            <td>{p.summary}</td>
-                            <td>{p.status}</td>
-                            <td>{p.principalInvestigator}</td>
-                            <td>{p.tags}</td>
-                            <td>{p.startDate}</td>
-                            <td>{p.endDate}</td>
-                            <td>{p.createdAt ? new Date(p.createdAt).toLocaleString() : ""}</td>
-                            <td>{p.updatedAt ? new Date(p.updatedAt).toLocaleString() : ""}</td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </Table>
             </Form>
+
+            <Table striped bordered hover responsive>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Summary</th>
+                    <th>Status</th>
+                    <th>PI</th>
+                    <th>Tags</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                </tr>
+                </thead>
+                <tbody>
+                {projects.map((p) => (
+                    <tr key={p.id} onClick={() => handleRowClick(p)} style={{ cursor: "pointer" }}>
+                        <td>{p.id}</td>
+                        <td>{p.title}</td>
+                        <td>{p.summary}</td>
+                        <td>{p.status}</td>
+                        <td>{p.principalInvestigator}</td>
+                        <td>{p.tags}</td>
+                        <td>{p.startDate}</td>
+                        <td>{p.endDate}</td>
+                        <td>{p.createdAt ? new Date(p.createdAt).toLocaleString() : ""}</td>
+                        <td>{p.updatedAt ? new Date(p.updatedAt).toLocaleString() : ""}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </Table>
         </>
     );
 }

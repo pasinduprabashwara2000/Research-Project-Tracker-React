@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {Alert, Button, Col, Form, Row, Table} from "react-bootstrap";
+import { Alert, Button, Col, Form, Row, Table } from "react-bootstrap";
 import axios from "axios";
 import "./css/style.css";
 
@@ -38,42 +38,48 @@ function ManageUser() {
         try {
             await axios.post("http://localhost:8080/api/user", form);
             setSuccessMsg("User Saved Successfully");
+            setErrorMsg("");
             fetchUsers();
             handleReset();
         } catch (error) {
-            setErrorMsg("Error Saving User: " + (error.response?.data?.message || error.message));
+            setErrorMsg("Error Saving User : " + (error.response?.data?.message || error.message));
+            setSuccessMsg("");
         }
     };
 
     const handleUpdate = async () => {
         if (!editId) {
             setErrorMsg("Please Select User ID to Update");
+            setSuccessMsg("");
             return;
         }
-
         try {
             await axios.put(`http://localhost:8080/api/user/${editId}`, form);
             setSuccessMsg("User Updated Successfully");
+            setErrorMsg("");
             fetchUsers();
             handleReset();
         } catch (error) {
             setErrorMsg("Error Updating User: " + (error.response?.data?.message || error.message));
+            setSuccessMsg("");
         }
     };
 
     const handleDelete = async () => {
         if (!form.userId) {
             setErrorMsg("Please Select User ID to Delete");
+            setSuccessMsg("");
             return;
         }
-
         try {
             await axios.delete(`http://localhost:8080/api/user/${form.userId}`);
             setSuccessMsg("User Deleted Successfully");
+            setErrorMsg("");
             fetchUsers();
             handleReset();
         } catch (error) {
             setErrorMsg("Error Deleting User: " + (error.response?.data?.message || error.message));
+            setSuccessMsg("");
         }
     };
 
@@ -93,12 +99,14 @@ function ManageUser() {
 
     const handleRowClick = (user) => {
         setForm({
-            userId: user.userId,
-            userName: user.userName,
-            password: user.password,
-            fullName: user.fullName,
-            userRoleEnum: user.userRoleEnum,
-            createdAt: user.createdAt ? user.createdAt.split("T")[0] + "T" + user.createdAt.split("T")[1].slice(0, 5) : "",
+            userId: user.userId || "",
+            userName: user.userName || "",
+            password: user.password || "",
+            fullName: user.fullName || "",
+            userRoleEnum: user.userRoleEnum || "",
+            createdAt: user.createdAt
+                ? user.createdAt.split("T")[0] + "T" + user.createdAt.split("T")[1].slice(0, 5)
+                : "",
         });
         setEditId(user.userId);
         setErrorMsg("");
@@ -122,7 +130,7 @@ function ManageUser() {
                             value={form.userId}
                             onChange={handleChange}
                             placeholder="Enter Your User ID"
-                            disabled={!!editId} // prevent changing ID during edit
+                            disabled={!!editId}
                         />
                     </Col>
 
