@@ -8,6 +8,7 @@ import ManageUser from "./pages/ManageUser";
 import ManageProject from "./pages/ManageProject";
 import ManageMilestone from "./pages/ManageMilestone";
 import ManageDocument from "./pages/ManageDocument";
+import ManageSignup from "./components/auth/ManageSignup";
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Navigate to="/login" />} />
                     <Route path="/login" element={<ManageLogin />} />
+                    <Route path="/signup" element={<ManageSignup/>} />
                     <Route path="/unauthorized" element={<Unauthorized />} />
 
                     <Route
