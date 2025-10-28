@@ -1,5 +1,5 @@
 import React from "react";
-import './sidebar.css';
+import '../css/sidebar.css';
 import { Nav } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import { People, FileText, Folder2, Flag } from "react-bootstrap-icons";

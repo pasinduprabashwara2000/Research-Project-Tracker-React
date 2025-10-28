@@ -23,7 +23,7 @@ function ManageUser() {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get("http://localhost:8080/api/user");
+            const res = await axios.get("http://localhost:8080/api/user/");
             setUsers(res.data);
         } catch (error) {
             setErrorMsg("Error fetching Users: " + (error.response?.data?.message || error.message));
